@@ -1,1 +1,1266 @@
-# simulador-paes
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PAES Práctica - Simulador</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            width: 100%;
+            min-height: 100vh;
+        }
+
+        .screen {
+            width: 100%;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Auth Styles */
+        .auth-container {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .auth-container h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #667eea;
+            font-size: 2.5em;
+        }
+
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 20px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            background: #f5f5f5;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .tab-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .auth-form input {
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .auth-form button {
+            padding: 15px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .auth-form button:hover {
+            background: #5a6fd8;
+        }
+
+        /* Dashboard Styles */
+        #dashboard-screen {
+            display: block;
+            align-items: flex-start;
+            padding: 0;
+        }
+
+        #dashboard-screen.hidden {
+            display: none;
+        }
+
+        header {
+            background: white;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-info button {
+            padding: 8px 16px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .dashboard-content {
+            padding: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .stats-section {
+            margin-bottom: 40px;
+        }
+
+        .stats-section h2 {
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .stat-card h3 {
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .stat-card span {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .test-selection {
+            margin-bottom: 40px;
+        }
+
+        .test-selection h2 {
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .test-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .test-btn {
+            background: white;
+            padding: 30px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            text-align: left;
+        }
+
+        .test-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+
+        .test-btn small {
+            display: block;
+            color: #666;
+            margin-top: 10px;
+        }
+
+        .history-section h2 {
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        /* Test Screen Styles */
+        #test-screen {
+            display: block;
+            padding: 0;
+        }
+
+        #test-screen.hidden {
+            display: none;
+        }
+
+        .test-header {
+            background: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .timer {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #dc3545;
+        }
+
+        #finish-test-btn {
+            padding: 10px 20px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .test-content {
+            padding: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .question-container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        #question-text {
+            font-size: 1.1em;
+            line-height: 1.6;
+            margin-bottom: 25px;
+        }
+
+        #question-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .option {
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .option:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .option.selected {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+
+        .test-navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .question-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(40px, 1fr));
+            gap: 5px;
+            max-width: 600px;
+        }
+
+        .question-number {
+            width: 40px;
+            height: 40px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .question-number.answered {
+            background: #28a745;
+            color: white;
+            border-color: #28a745;
+        }
+
+        .question-number.current {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .nav-btn {
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .nav-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        /* Results Screen */
+        .results-container {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .score-display {
+            margin: 30px 0;
+        }
+
+        .final-score h2 {
+            font-size: 3em;
+            color: #28a745;
+            margin-bottom: 10px;
+        }
+
+        .results-stats {
+            display: grid;
+            gap: 15px;
+            margin: 30px 0;
+        }
+
+        .stat {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .results-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .results-actions button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .results-actions button:first-child {
+            background: #667eea;
+            color: white;
+        }
+
+        .results-actions button:last-child {
+            background: #6c757d;
+            color: white;
+        }
+
+        /* Review Screen */
+        #review-screen {
+            display: block;
+            padding: 0;
+        }
+
+        #review-screen.hidden {
+            display: none;
+        }
+
+        .review-header {
+            background: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .review-content {
+            padding: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .review-navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .review-question {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .solution-container {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #eee;
+        }
+
+        .solution-container h3 {
+            color: #28a745;
+            margin-bottom: 15px;
+        }
+
+        .option.correct {
+            border-color: #28a745;
+            background: #d4e6f1;
+        }
+
+        .option.incorrect {
+            border-color: #dc3545;
+            background: #f8d7da;
+        }
+
+        .option.user-selected {
+            font-weight: bold;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .test-header {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .test-navigation {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .question-grid {
+                order: -1;
+                max-width: 100%;
+            }
+            
+            .results-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Pantalla de Login/Registro -->
+        <div id="auth-screen" class="screen">
+            <div class="auth-container">
+                <h1>PAES Práctica</h1>
+                <div class="auth-tabs">
+                    <button class="tab-btn active" onclick="showLogin()">Iniciar Sesión</button>
+                    <button class="tab-btn" onclick="showRegister()">Registrarse</button>
+                </div>
+                
+                <!-- Login Form -->
+                <div id="login-form" class="auth-form">
+                    <input type="text" id="login-username" placeholder="Usuario" required>
+                    <input type="password" id="login-password" placeholder="Contraseña" required>
+                    <button onclick="login()">Ingresar</button>
+                </div>
+                
+                <!-- Register Form -->
+                <div id="register-form" class="auth-form hidden">
+                    <input type="text" id="register-username" placeholder="Usuario" required>
+                    <input type="email" id="register-email" placeholder="Email" required>
+                    <input type="password" id="register-password" placeholder="Contraseña" required>
+                    <button onclick="register()">Registrarse</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Dashboard -->
+        <div id="dashboard-screen" class="screen hidden">
+            <div style="width: 100%;">
+                <header>
+                    <h1>Dashboard PAES</h1>
+                    <div class="user-info">
+                        <span id="username-display"></span>
+                        <button onclick="logout()">Cerrar Sesión</button>
+                    </div>
+                </header>
+                
+                <div class="dashboard-content">
+                    <div class="stats-section">
+                        <h2>Tus Estadísticas</h2>
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <h3>Pruebas Realizadas</h3>
+                                <span id="total-tests">0</span>
+                            </div>
+                            <div class="stat-card">
+                                <h3>Promedio General</h3>
+                                <span id="average-score">0</span>
+                            </div>
+                            <div class="stat-card">
+                                <h3>Mejor Puntaje</h3>
+                                <span id="best-score">0</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="test-selection">
+                        <h2>Seleccionar Prueba</h2>
+                        <div class="test-buttons">
+                            <button class="test-btn" onclick="startTest('competencia-lectora')">
+                                <div>Competencia Lectora</div>
+                                <small>65 preguntas - 2h 30min</small>
+                            </button>
+                            <button class="test-btn" onclick="startTest('matematica-m1')">
+                                <div>Matemática M1</div>
+                                <small>65 preguntas - 2h 20min</small>
+                            </button>
+                            <button class="test-btn" onclick="startTest('matematica-m2')">
+                                <div>Matemática M2</div>
+                                <small>55 preguntas - 2h 00min</small>
+                            </button>
+                            <button class="test-btn" onclick="startTest('ciencias')">
+                                <div>Ciencias</div>
+                                <small>80 preguntas - 2h 40min</small>
+                            </button>
+                            <button class="test-btn" onclick="startTest('historia')">
+                                <div>Historia y Cs. Sociales</div>
+                                <small>65 preguntas - 2h 00min</small>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="history-section">
+                        <h2>Historial de Pruebas</h2>
+                        <div id="test-history"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Pantalla de Examen -->
+        <div id="test-screen" class="screen hidden">
+            <div style="width: 100%;">
+                <div class="test-header">
+                    <div class="test-info">
+                        <h2 id="test-title"></h2>
+                        <span id="question-counter">Pregunta 1 de 65</span>
+                    </div>
+                    <div class="timer">
+                        <span id="time-remaining">02:30:00</span>
+                    </div>
+                    <button id="finish-test-btn" onclick="finishTest()">Finalizar Prueba</button>
+                </div>
+                
+                <div class="test-content">
+                    <div class="question-container">
+                        <div id="question-text"></div>
+                        <div id="question-options"></div>
+                    </div>
+                    
+                    <div class="test-navigation">
+                        <button class="nav-btn" id="prev-btn" onclick="previousQuestion()" disabled>Anterior</button>
+                        <div class="question-grid" id="question-grid"></div>
+                        <button class="nav-btn" id="next-btn" onclick="nextQuestion()">Siguiente</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Pantalla de Resultados -->
+        <div id="results-screen" class="screen hidden">
+            <div class="results-container">
+                <h1>Resultados de tu Prueba</h1>
+                <div class="score-display">
+                    <div class="final-score">
+                        <h2 id="final-score-text">750 puntos</h2>
+                        <p id="score-category">Excelente</p>
+                    </div>
+                </div>
+                
+                <div class="results-stats">
+                    <div class="stat">
+                        <span>Correctas:</span>
+                        <span id="correct-answers">45/65</span>
+                    </div>
+                    <div class="stat">
+                        <span>Incorrectas:</span>
+                        <span id="incorrect-answers">15/65</span>
+                    </div>
+                    <div class="stat">
+                        <span>Sin responder:</span>
+                        <span id="unanswered">5/65</span>
+                    </div>
+                    <div class="stat">
+                        <span>Tiempo utilizado:</span>
+                        <span id="time-used">2h 15min</span>
+                    </div>
+                </div>
+                
+                <div class="results-actions">
+                    <button onclick="reviewTest()">Revisar Respuestas</button>
+                    <button onclick="backToDashboard()">Volver al Dashboard</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Pantalla de Revisión -->
+        <div id="review-screen" class="screen hidden">
+            <div style="width: 100%;">
+                <div class="review-header">
+                    <h2>Revisión de Respuestas</h2>
+                    <button class="nav-btn" onclick="backToResults()">Volver a Resultados</button>
+                </div>
+                
+                <div class="review-content">
+                    <div class="review-navigation">
+                        <button class="nav-btn" onclick="previousReviewQuestion()">Anterior</button>
+                        <span id="review-counter">Pregunta 1 de 65</span>
+                        <button class="nav-btn" onclick="nextReviewQuestion()">Siguiente</button>
+                    </div>
+                    
+                    <div class="review-question">
+                        <div id="review-question-text"></div>
+                        <div id="review-options"></div>
+                        <div class="solution-container">
+                            <h3>Solución:</h3>
+                            <div id="solution-text"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Datos de usuarios y preguntas simuladas
+        let users = JSON.parse(localStorage.getItem('paes_users')) || {};
+        let currentUser = null;
+        let currentTest = null;
+        let currentQuestionIndex = 0;
+        let testStartTime = null;
+        let testTimer = null;
+        let userAnswers = [];
+        let questions = [];
+        let reviewQuestionIndex = 0;
+
+        // Banco de preguntas por materia
+        const questionBank = {
+            'competencia-lectora': [
+                {
+                    text: "Lee el siguiente texto y responde: 'La globalización ha transformado profundamente la economía mundial, creando nuevas oportunidades pero también desafíos significativos para los países en desarrollo.' ¿Cuál es la idea principal del texto?",
+                    options: [
+                        "La globalización solo beneficia a países desarrollados",
+                        "La globalización ha tenido efectos mixtos en la economía mundial",
+                        "Los países en desarrollo rechazan la globalización",
+                        "La globalización es un proceso exclusivamente económico",
+                        "La globalización no afecta a los países en desarrollo"
+                    ],
+                    correct: 1,
+                    solution: "La respuesta correcta es B. El texto presenta la globalización como un fenómeno que ha tenido tanto aspectos positivos ('nuevas oportunidades') como negativos ('desafíos significativos'), especialmente para países en desarrollo."
+                },
+                {
+                    text: "¿Cuál de las siguientes opciones presenta una correcta concordancia gramatical?",
+                    options: [
+                        "La mayoría de estudiantes están preparados",
+                        "Hubieron muchos problemas en la reunión",
+                        "Se venden casas en el centro",
+                        "Han habido varios inconvenientes",
+                        "Hacen dos años que no nos vemos"
+                    ],
+                    correct: 2,
+                    solution: "La respuesta correcta es C. 'Se venden casas' presenta concordancia correcta entre el verbo y su sujeto (casas). Las otras opciones tienen errores: 'La mayoría... está' (sujeto singular), 'Hubo muchos problemas' (impersonal), 'Ha habido' (impersonal), 'Hace dos años' (impersonal)."
+                },
+                {
+                    text: "Identifica la figura literaria presente en: 'Sus ojos eran dos luceros brillantes'",
+                    options: [
+                        "Metáfora",
+                        "Símil",
+                        "Hipérbole",
+                        "Personificación",
+                        "Aliteración"
+                    ],
+                    correct: 0,
+                    solution: "La respuesta correcta es A. Es una metáfora porque se establece una identificación directa entre 'ojos' y 'luceros' sin usar nexos comparativos."
+                }
+            ],
+            'matematica-m1': [
+                {
+                    text: "Si 2x + 3 = 11, entonces x es igual a:",
+                    options: ["2", "3", "4", "5", "6"],
+                    correct: 2,
+                    solution: "Para resolver 2x + 3 = 11, restamos 3 de ambos lados: 2x = 8, luego dividimos por 2: x = 4"
+                },
+                {
+                    text: "¿Cuál es el área de un triángulo de base 8 cm y altura 6 cm?",
+                    options: ["24 cm²", "48 cm²", "14 cm²", "28 cm²", "32 cm²"],
+                    correct: 0,
+                    solution: "El área de un triángulo se calcula como: A = (base × altura) / 2 = (8 × 6) / 2 = 48 / 2 = 24 cm²"
+                },
+                {
+                    text: "¿Cuál es el resultado de 15% de 240?",
+                    options: ["24", "36", "48", "32", "40"],
+                    correct: 1,
+                    solution: "15% de 240 = 0.15 × 240 = 36"
+                }
+            ],
+            'matematica-m2': [
+                {
+                    text: "Resolver la ecuación: log₂(x) = 3",
+                    options: ["6", "8", "9", "16", "32"],
+                    correct: 1,
+                    solution: "Si log₂(x) = 3, entonces x = 2³ = 8"
+                },
+                {
+                    text: "¿Cuál es la derivada de f(x) = x³?",
+                    options: ["x²", "3x²", "3x", "x³/3", "3x³"],
+                    correct: 1,
+                    solution: "La derivada de x³ es 3x² usando la regla de potencias: d/dx(xⁿ) = n·xⁿ⁻¹"
+                }
+            ],
+            'ciencias': [
+                {
+                    text: "¿Cuál es la fórmula química del agua?",
+                    options: ["HO", "H₂O", "H₃O", "HO₂", "H₂O₂"],
+                    correct: 1,
+                    solution: "La fórmula química del agua es H₂O, que indica que cada molécula contiene 2 átomos de hidrógeno y 1 átomo de oxígeno."
+                },
+                {
+                    text: "¿Qué organelo celular es responsable de la respiración celular?",
+                    options: ["Núcleo", "Mitocondria", "Ribosoma", "Cloroplasto", "Retículo endoplasmático"],
+                    correct: 1,
+                    solution: "La mitocondria es el organelo responsable de la respiración celular, donde se produce ATP (energía) para la célula."
+                },
+                {
+                    text: "¿Cuál es la velocidad de la luz en el vacío?",
+                    options: ["300,000 km/s", "299,792,458 m/s", "186,000 millas/s", "Todas las anteriores", "Ninguna es correcta"],
+                    correct: 3,
+                    solution: "Todas las opciones son correctas. La velocidad de la luz es aproximadamente 300,000 km/s, exactamente 299,792,458 m/s, y aproximadamente 186,000 millas/s."
+                }
+            ],
+            'historia': [
+                {
+                    text: "¿En qué año se independizó Chile?",
+                    options: ["1810", "1818", "1820", "1821", "1823"],
+                    correct: 1,
+                    solution: "Chile se independizó en 1818, cuando se consolidó la independencia tras la Batalla de Maipú el 5 de abril de ese año."
+                },
+                {
+                    text: "¿Quién fue el primer presidente de Chile?",
+                    options: ["Bernardo O'Higgins", "José Miguel Carrera", "Manuel Blanco Encalada", "Ramón Freire", "Francisco Antonio Pinto"],
+                    correct: 2,
+                    solution: "Manuel Blanco Encalada fue el primer presidente de Chile (1826), aunque su mandato duró muy poco tiempo."
+                },
+                {
+                    text: "¿En qué siglo ocurrió la Revolución Industrial?",
+                    options: ["Siglo XVI", "Siglo XVII", "Siglo XVIII", "Siglo XIX", "Siglo XX"],
+                    correct: 2,
+                    solution: "La Revolución Industrial comenzó en el siglo XVIII (hacia 1760) en Gran Bretaña y se extendió durante el siglo XIX."
+                }
+            ]
+        };
+
+        // Configuración de pruebas
+        const testConfig = {
+            'competencia-lectora': { name: 'Competencia Lectora', questions: 65, time: 150 },
+            'matematica-m1': { name: 'Matemática M1', questions: 65, time: 140 },
+            'matematica-m2': { name: 'Matemática M2', questions: 55, time: 120 },
+            'ciencias': { name: 'Ciencias', questions: 80, time: 160 },
+            'historia': { name: 'Historia y Ciencias Sociales', questions: 65, time: 120 }
+        };
+
+        // Funciones de autenticación
+        function showLogin() {
+            document.getElementById('login-form').classList.remove('hidden');
+            document.getElementById('register-form').classList.add('hidden');
+            document.querySelectorAll('.tab-btn')[0].classList.add('active');
+            document.querySelectorAll('.tab-btn')[1].classList.remove('active');
+        }
+
+        function showRegister() {
+            document.getElementById('register-form').classList.remove('hidden');
+            document.getElementById('login-form').classList.add('hidden');
+            document.querySelectorAll('.tab-btn')[1].classList.add('active');
+            document.querySelectorAll('.tab-btn')[0].classList.remove('active');
+        }
+
+        function register() {
+            const username = document.getElementById('register-username').value;
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+            
+            if (!username || !email || !password) {
+                alert('Por favor, completa todos los campos');
+                return;
+            }
+            
+            if (users[username]) {
+                alert('El usuario ya existe');
+                return;
+            }
+            
+            users[username] = {
+                email: email,
+                password: password,
+                tests: [],
+                stats: { totalTests: 0, averageScore: 0, bestScore: 0 }
+            };
+            
+            localStorage.setItem('paes_users', JSON.stringify(users));
+            alert('Usuario registrado exitosamente');
+            showLogin();
+        }
+
+        function login() {
+            const username = document.getElementById('login-username').value;
+            const password = document.getElementById('login-password').value;
+           
+           if (!username || !password) {
+               alert('Por favor, completa todos los campos');
+               return;
+           }
+           
+           if (!users[username] || users[username].password !== password) {
+               alert('Usuario o contraseña incorrectos');
+               return;
+           }
+           
+           currentUser = username;
+           showDashboard();
+       }
+
+       function logout() {
+           currentUser = null;
+           document.getElementById('dashboard-screen').classList.add('hidden');
+           document.getElementById('auth-screen').classList.remove('hidden');
+       }
+
+       function showDashboard() {
+           document.getElementById('auth-screen').classList.add('hidden');
+           document.getElementById('dashboard-screen').classList.remove('hidden');
+           document.getElementById('username-display').textContent = currentUser;
+           updateStats();
+           loadTestHistory();
+       }
+
+       function updateStats() {
+           const userStats = users[currentUser].stats;
+           document.getElementById('total-tests').textContent = userStats.totalTests;
+           document.getElementById('average-score').textContent = Math.round(userStats.averageScore);
+           document.getElementById('best-score').textContent = userStats.bestScore;
+       }
+
+       function loadTestHistory() {
+           const history = users[currentUser].tests;
+           const historyContainer = document.getElementById('test-history');
+           
+           historyContainer.innerHTML = '';
+           
+           if (history.length === 0) {
+               historyContainer.innerHTML = '<p style="color: white;">No has realizado pruebas aún</p>';
+               return;
+           }
+           
+           history.slice(-5).reverse().forEach(test => {
+               const testDiv = document.createElement('div');
+               testDiv.innerHTML = `
+                   <div style="background: white; padding: 15px; margin: 10px 0; border-radius: 5px; display: flex; justify-content: space-between;">
+                       <span>${testConfig[test.type].name}</span>
+                       <span>${test.score} puntos</span>
+                       <span>${new Date(test.date).toLocaleDateString()}</span>
+                   </div>
+               `;
+               historyContainer.appendChild(testDiv);
+           });
+       }
+
+       // Funciones de prueba
+       function startTest(testType) {
+           currentTest = testType;
+           currentQuestionIndex = 0;
+           testStartTime = Date.now();
+           userAnswers = [];
+           
+           // Generar preguntas aleatorias
+           questions = generateRandomQuestions(testType);
+           
+           // Inicializar respuestas
+           for (let i = 0; i < questions.length; i++) {
+               userAnswers.push(null);
+           }
+           
+           showTestScreen();
+           startTimer();
+           loadQuestion();
+       }
+
+       function generateRandomQuestions(testType) {
+           const baseQuestions = questionBank[testType] || [];
+           const config = testConfig[testType];
+           const generatedQuestions = [];
+           
+           // Si no hay suficientes preguntas base, duplicar y variar
+           while (generatedQuestions.length < config.questions) {
+               if (baseQuestions.length > 0) {
+                   const baseQuestion = baseQuestions[generatedQuestions.length % baseQuestions.length];
+                   generatedQuestions.push({ ...baseQuestion });
+               } else {
+                   // Generar pregunta por defecto si no hay preguntas disponibles
+                   generatedQuestions.push({
+                       text: `Pregunta ${generatedQuestions.length + 1} de ${testConfig[testType].name}`,
+                       options: ["Opción A", "Opción B", "Opción C", "Opción D", "Opción E"],
+                       correct: Math.floor(Math.random() * 5),
+                       solution: "Esta es una pregunta de ejemplo generada automáticamente."
+                   });
+               }
+           }
+           
+           return generatedQuestions.slice(0, config.questions);
+       }
+
+       function showTestScreen() {
+           document.getElementById('dashboard-screen').classList.add('hidden');
+           document.getElementById('test-screen').classList.remove('hidden');
+           document.getElementById('test-title').textContent = testConfig[currentTest].name;
+           
+           // Crear grid de navegación
+           const grid = document.getElementById('question-grid');
+           grid.innerHTML = '';
+           
+           for (let i = 0; i < questions.length; i++) {
+               const questionBtn = document.createElement('div');
+               questionBtn.className = 'question-number';
+               questionBtn.textContent = i + 1;
+               questionBtn.onclick = () => goToQuestion(i);
+               grid.appendChild(questionBtn);
+           }
+       }
+
+       function startTimer() {
+           const timeLimit = testConfig[currentTest].time * 60; // minutos a segundos
+           let timeLeft = timeLimit;
+           
+           testTimer = setInterval(() => {
+               const hours = Math.floor(timeLeft / 3600);
+               const minutes = Math.floor((timeLeft % 3600) / 60);
+               const seconds = timeLeft % 60;
+               
+               document.getElementById('time-remaining').textContent = 
+                   `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+               
+               if (timeLeft <= 0) {
+                   clearInterval(testTimer);
+                   finishTest();
+                   return;
+               }
+               
+               timeLeft--;
+           }, 1000);
+       }
+
+       function loadQuestion() {
+           const question = questions[currentQuestionIndex];
+           document.getElementById('question-text').textContent = question.text;
+           document.getElementById('question-counter').textContent = 
+               `Pregunta ${currentQuestionIndex + 1} de ${questions.length}`;
+           
+           const optionsContainer = document.getElementById('question-options');
+           optionsContainer.innerHTML = '';
+           
+           question.options.forEach((option, index) => {
+               const optionDiv = document.createElement('div');
+               optionDiv.className = 'option';
+               if (userAnswers[currentQuestionIndex] === index) {
+                   optionDiv.classList.add('selected');
+               }
+               optionDiv.textContent = `${String.fromCharCode(65 + index)}) ${option}`;
+               optionDiv.onclick = () => selectOption(index);
+               optionsContainer.appendChild(optionDiv);
+           });
+           
+           updateNavigationButtons();
+           updateQuestionGrid();
+       }
+
+       function selectOption(optionIndex) {
+           userAnswers[currentQuestionIndex] = optionIndex;
+           
+           // Actualizar visualización
+           document.querySelectorAll('.option').forEach((opt, index) => {
+               opt.classList.toggle('selected', index === optionIndex);
+           });
+           
+           updateQuestionGrid();
+       }
+
+       function updateNavigationButtons() {
+           document.getElementById('prev-btn').disabled = currentQuestionIndex === 0;
+           document.getElementById('next-btn').textContent = 
+               currentQuestionIndex === questions.length - 1 ? 'Finalizar' : 'Siguiente';
+       }
+
+       function updateQuestionGrid() {
+           const questionNumbers = document.querySelectorAll('.question-number');
+           questionNumbers.forEach((btn, index) => {
+               btn.classList.remove('current', 'answered');
+               if (index === currentQuestionIndex) {
+                   btn.classList.add('current');
+               } else if (userAnswers[index] !== null) {
+                   btn.classList.add('answered');
+               }
+           });
+       }
+
+       function previousQuestion() {
+           if (currentQuestionIndex > 0) {
+               currentQuestionIndex--;
+               loadQuestion();
+           }
+       }
+
+       function nextQuestion() {
+           if (currentQuestionIndex < questions.length - 1) {
+               currentQuestionIndex++;
+               loadQuestion();
+           } else {
+               finishTest();
+           }
+       }
+
+       function goToQuestion(index) {
+           currentQuestionIndex = index;
+           loadQuestion();
+       }
+
+       function finishTest() {
+           clearInterval(testTimer);
+           
+           // Calcular resultados
+           const results = calculateResults();
+           
+           // Guardar en historial
+           saveTestResults(results);
+           
+           // Mostrar resultados
+           showResults(results);
+       }
+
+       function calculateResults() {
+           let correct = 0;
+           let incorrect = 0;
+           let unanswered = 0;
+           
+           questions.forEach((question, index) => {
+               if (userAnswers[index] === null) {
+                   unanswered++;
+               } else if (userAnswers[index] === question.correct) {
+                   correct++;
+               } else {
+                   incorrect++;
+               }
+           });
+           
+           // Calcular puntaje PAES (escala 100-1000)
+           const percentage = (correct / questions.length) * 100;
+           const score = Math.round(100 + (percentage * 9));
+           
+           const timeUsed = Math.round((Date.now() - testStartTime) / 1000 / 60); // minutos
+           
+           return {
+               correct,
+               incorrect,
+               unanswered,
+               score,
+               timeUsed,
+               total: questions.length,
+               percentage
+           };
+       }
+
+       function saveTestResults(results) {
+           const testData = {
+               type: currentTest,
+               score: results.score,
+               correct: results.correct,
+               total: results.total,
+               timeUsed: results.timeUsed,
+               date: Date.now()
+           };
+           
+           users[currentUser].tests.push(testData);
+           
+           // Actualizar estadísticas
+           const stats = users[currentUser].stats;
+           stats.totalTests++;
+           stats.bestScore = Math.max(stats.bestScore, results.score);
+           
+           const allScores = users[currentUser].tests.map(t => t.score);
+           stats.averageScore = allScores.reduce((a, b) => a + b, 0) / allScores.length;
+           
+           localStorage.setItem('paes_users', JSON.stringify(users));
+       }
+
+       function showResults(results) {
+           document.getElementById('test-screen').classList.add('hidden');
+           document.getElementById('results-screen').classList.remove('hidden');
+           
+           document.getElementById('final-score-text').textContent = `${results.score} puntos`;
+           document.getElementById('score-category').textContent = getScoreCategory(results.score);
+           document.getElementById('correct-answers').textContent = `${results.correct}/${results.total}`;
+           document.getElementById('incorrect-answers').textContent = `${results.incorrect}/${results.total}`;
+           document.getElementById('unanswered').textContent = `${results.unanswered}/${results.total}`;
+           
+           const hours = Math.floor(results.timeUsed / 60);
+           const minutes = results.timeUsed % 60;
+           document.getElementById('time-used').textContent = 
+               hours > 0 ? `${hours}h ${minutes}min` : `${minutes}min`;
+       }
+
+       function getScoreCategory(score) {
+           if (score >= 850) return 'Sobresaliente';
+           if (score >= 750) return 'Excelente';
+           if (score >= 650) return 'Muy Bueno';
+           if (score >= 550) return 'Bueno';
+           if (score >= 450) return 'Regular';
+           return 'Insuficiente';
+       }
+
+       function reviewTest() {
+           reviewQuestionIndex = 0;
+           showReviewScreen();
+       }
+
+       function showReviewScreen() {
+           document.getElementById('results-screen').classList.add('hidden');
+           document.getElementById('review-screen').classList.remove('hidden');
+           loadReviewQuestion();
+       }
+
+       function loadReviewQuestion() {
+           const question = questions[reviewQuestionIndex];
+           const userAnswer = userAnswers[reviewQuestionIndex];
+           
+           document.getElementById('review-counter').textContent = 
+               `Pregunta ${reviewQuestionIndex + 1} de ${questions.length}`;
+           document.getElementById('review-question-text').textContent = question.text;
+           document.getElementById('solution-text').textContent = question.solution;
+           
+           const optionsContainer = document.getElementById('review-options');
+           optionsContainer.innerHTML = '';
+           
+           question.options.forEach((option, index) => {
+               const optionDiv = document.createElement('div');
+               optionDiv.className = 'option';
+               
+               // Marcar respuesta correcta
+               if (index === question.correct) {
+                   optionDiv.classList.add('correct');
+               }
+               
+               // Marcar respuesta del usuario
+               if (userAnswer === index) {
+                   optionDiv.classList.add('user-selected');
+                   if (index !== question.correct) {
+                       optionDiv.classList.add('incorrect');
+                   }
+               }
+               
+               optionDiv.innerHTML = `${String.fromCharCode(65 + index)}) ${option}`;
+               if (userAnswer === index) {
+                   optionDiv.innerHTML += ' <strong>(Tu respuesta)</strong>';
+               }
+               if (index === question.correct) {
+                   optionDiv.innerHTML += ' <strong>(Correcta)</strong>';
+               }
+               
+               optionsContainer.appendChild(optionDiv);
+           });
+       }
+
+       function previousReviewQuestion() {
+           if (reviewQuestionIndex > 0) {
+               reviewQuestionIndex--;
+               loadReviewQuestion();
+           }
+       }
+
+       function nextReviewQuestion() {
+           if (reviewQuestionIndex < questions.length - 1) {
+               reviewQuestionIndex++;
+               loadReviewQuestion();
+           }
+       }
+
+       function backToResults() {
+           document.getElementById('review-screen').classList.add('hidden');
+           document.getElementById('results-screen').classList.remove('hidden');
+       }
+
+       function backToDashboard() {
+           document.getElementById('results-screen').classList.add('hidden');
+           document.getElementById('dashboard-screen').classList.remove('hidden');
+           updateStats();
+           loadTestHistory();
+       }
+
+       // Inicialización
+       document.addEventListener('DOMContentLoaded', function() {
+           // Mostrar pantalla de login por defecto
+           showLogin();
+       });
+   </script>
+</body>
+</html>
